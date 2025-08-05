@@ -710,6 +710,11 @@ class ASLApp:
     def extract_features(self):
         threading.Thread(target=self._extract_features_thread, daemon=True).start()
 
+    def extract_features(self):
+        """禁用按钮并启动特征提取线程"""
+        self.extract_features_btn.config(state=tk.DISABLED)  # 禁用按钮
+        threading.Thread(target=self._extract_features_thread, daemon=True).start()
+
     def _extract_features_thread(self):
         self.log_message(self.train_log, "开始特征提取...")
         self.log_status("特征提取中...")
@@ -748,11 +753,14 @@ class ASLApp:
             self.log_message(self.train_log, f"特征提取完成! 保存了 {len(data)} 个样本。")
             self.log_status("特征提取完成")
             messagebox.showinfo("成功", f"特征提取完成! 保存了 {len(data)} 个样本。")
-            self.update_button_states()
+            
         except Exception as e:
             messagebox.showerror("错误", f"特征提取出错: {e}")
             self.log_status("特征提取失败")
-
+        finally:
+            # 无论成功失败，最后都重新启用按钮
+            self.extract_features_btn.config(state=tk.NORMAL)
+            self.update_button_states()
     def train_model(self):
         threading.Thread(target=self._train_model_thread, daemon=True).start()
 
